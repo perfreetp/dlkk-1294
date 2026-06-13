@@ -178,6 +178,12 @@ function calculateEducationScore(candidate: Candidate, job: Job): number {
   return Math.max(40, candidateScore * 0.8);
 }
 
+function isEducationQualified(candidate: Candidate, job: Job): boolean {
+  const candidateScore = EDUCATION_SCORES[candidate.education] || 50;
+  const requiredScore = EDUCATION_SCORES[job.educationRequirement] || 60;
+  return candidateScore >= requiredScore;
+}
+
 function calculateIndustryScore(candidate: Candidate, job: Job): number {
   if (!candidate.industry || !job.industry) return 70;
   if (candidate.industry === job.industry) return 100;
@@ -219,11 +225,7 @@ function generateMissingItems(candidate: Candidate, job: Job, missingSkills: Arr
     });
   }
   
-  const eduOrder = ['大专', '本科', '硕士', '博士', 'MBA'];
-  const candidateEduIndex = eduOrder.indexOf(candidate.education);
-  const requiredEduIndex = eduOrder.indexOf(job.educationRequirement);
-  
-  if (candidateEduIndex < requiredEduIndex && requiredEduIndex > 0) {
+  if (!isEducationQualified(candidate, job) && job.educationRequirement) {
     items.push({
       type: 'education',
       name: '学历不达标',

@@ -14,9 +14,12 @@ async function request<T>(
   url: string,
   options: RequestInit = {}
 ): Promise<ApiResponse<T>> {
-  const defaultHeaders = {
-    'Content-Type': 'application/json',
-  };
+  const isFormData = options.body instanceof FormData;
+  
+  const defaultHeaders: Record<string, string> = {};
+  if (!isFormData) {
+    defaultHeaders['Content-Type'] = 'application/json';
+  }
 
   const response = await fetch(`${API_BASE}${url}`, {
     ...options,

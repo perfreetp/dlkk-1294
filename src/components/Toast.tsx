@@ -15,7 +15,7 @@ const toastStyles = {
   warning: 'bg-warning-50 border-warning-500 text-warning-700',
 };
 
-export function ToastContainer() {
+export function Toast() {
   const { toasts, removeToast } = useStore();
 
   return (

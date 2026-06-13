@@ -380,7 +380,11 @@ export const useStore = create<AppState>((set, get) => ({
     try {
       const response = await matchApi.getMatchReport(candidateId, jobId);
       if (response.success && response.data) {
-        set({ selectedMatchReport: response.data });
+        set({ 
+          selectedMatchReport: response.data,
+          matchReports: [],
+        });
+        get().addToast('success', '匹配报告生成成功');
       } else {
         get().addToast('error', response.error || '获取匹配报告失败');
       }
@@ -396,7 +400,10 @@ export const useStore = create<AppState>((set, get) => ({
     try {
       const response = await matchApi.batchCalculateMatch(candidateIds, jobId);
       if (response.success && response.data) {
-        set({ matchReports: response.data });
+        set({ 
+          matchReports: response.data,
+          selectedMatchReport: null,
+        });
         get().addToast('success', response.message || '批量匹配完成');
       } else {
         get().addToast('error', response.error || '批量匹配失败');

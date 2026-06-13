@@ -33,11 +33,24 @@ export function MatchReport() {
     fetchJobs();
   }, []);
 
+  useEffect(() => {
+    if (!isBatchMode) {
+      useStore.getState().setSelectedMatchReport(null);
+    }
+  }, [selectedCandidateId, selectedJobId, isBatchMode]);
+
+  useEffect(() => {
+    if (isBatchMode) {
+      useStore.getState().setMatchReports([]);
+    }
+  }, [selectedCandidateIds, selectedJobId, isBatchMode]);
+
   const handleSingleMatch = async () => {
     if (!selectedCandidateId || !selectedJobId) {
       addToast('warning', '请选择候选人和岗位');
       return;
     }
+    useStore.getState().setSelectedMatchReport(null);
     await getMatchReport(selectedCandidateId, selectedJobId);
   };
 
@@ -46,6 +59,7 @@ export function MatchReport() {
       addToast('warning', '请选择候选人和岗位');
       return;
     }
+    useStore.getState().setMatchReports([]);
     await batchCalculateMatch(selectedCandidateIds, selectedJobId);
   };
 
