@@ -19,15 +19,41 @@ export function calculateMatch(candidateId: string, jobId: string): MatchReport 
   }
   
   const candidate: Candidate = {
-    ...candidateRow,
+    id: candidateRow.id,
+    name: candidateRow.name,
+    phone: candidateRow.phone,
+    email: candidateRow.email,
+    education: candidateRow.education,
+    major: candidateRow.major,
+    graduationYear: candidateRow.graduation_year,
+    totalWorkYears: candidateRow.total_work_years || 0,
+    industry: candidateRow.industry,
     skills: JSON.parse(candidateRow.skills_json || '[]'),
-    experiences: JSON.parse(candidateRow.experiences_json || '[]')
+    experiences: JSON.parse(candidateRow.experiences_json || '[]'),
+    currentSalary: candidateRow.current_salary,
+    expectedSalary: candidateRow.expected_salary,
+    status: candidateRow.status,
+    consultantNotes: candidateRow.consultant_notes,
+    recommendationReason: candidateRow.recommendation_reason,
+    resumeUrl: candidateRow.resume_url,
+    createdAt: candidateRow.created_at,
+    updatedAt: candidateRow.updated_at,
   };
   
   const job: Job & { requirements: JobRequirement[] } = {
-    ...jobRow,
+    id: jobRow.id,
+    title: jobRow.title,
+    department: jobRow.department,
+    industry: jobRow.industry,
+    salaryRange: jobRow.salary_range,
+    location: jobRow.location,
+    minWorkYears: jobRow.min_work_years || 0,
+    educationRequirement: jobRow.education_requirement,
+    description: jobRow.description,
     requirements: db.prepare('SELECT skill, required, weight, min_years as minYears FROM job_requirements WHERE job_id = ?').all(jobId) as JobRequirement[],
-    responsibilities: JSON.parse(jobRow.responsibilities_json || '[]')
+    responsibilities: JSON.parse(jobRow.responsibilities_json || '[]'),
+    createdAt: jobRow.created_at,
+    updatedAt: jobRow.updated_at,
   };
   
   const dimensions: MatchDimension[] = [];
@@ -298,11 +324,8 @@ function generateSummary(candidate: Candidate, job: Job, score: number, dimensio
   return `${candidate.name}，${candidate.education}学历，${candidate.totalWorkYears}年${candidate.industry}行业经验。${recommendation}。优势：${strengths.join('、')}。待关注：${weaknesses.join('、')}。`;
 }
 
-export function batchCalculateMatch(candidateIds: string[], jobId: string): Array<{ candidateId: string; score: number }> {
-  return candidateIds.map(cid => {
-    const report = calculateMatch(cid, jobId);
-    return { candidateId: cid, score: report.overallScore };
-  });
+export function batchCalculateMatch(candidateIds: string[], jobId: string): MatchReport[] {
+  return candidateIds.map(cid => calculateMatch(cid, jobId));
 }
 
 export function getMatchReport(candidateId: string, jobId: string): MatchReport | null {

@@ -240,27 +240,72 @@ export function MatchReport() {
             {sortedMatchReports.map((report, idx) => {
               const candidate = candidates.find(c => c.id === report.candidateId);
               return (
-                <div key={idx} className="card p-5">
-                  <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-ocean-500 rounded-full flex items-center justify-center text-white font-bold">
-                      {candidate?.name.charAt(0)}
+                <div key={idx} className="card p-5 relative overflow-hidden">
+                  {idx === 0 && (
+                    <div className="absolute top-0 right-0 bg-gradient-to-l from-amber-400 to-amber-500 text-white text-xs font-bold px-3 py-1 rounded-bl-lg">
+                      #1 推荐
                     </div>
-                    <div>
-                      <h4 className="font-semibold text-slate-900">{candidate?.name}</h4>
-                      <p className="text-xs text-slate-500">{candidate?.industry}</p>
+                  )}
+                  {idx === 1 && (
+                    <div className="absolute top-0 right-0 bg-gradient-to-l from-slate-400 to-slate-500 text-white text-xs font-bold px-3 py-1 rounded-bl-lg">
+                      #2
+                    </div>
+                  )}
+                  {idx === 2 && (
+                    <div className="absolute top-0 right-0 bg-gradient-to-l from-orange-400 to-orange-500 text-white text-xs font-bold px-3 py-1 rounded-bl-lg">
+                      #3
+                    </div>
+                  )}
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-ocean-500 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                        {candidate?.name.charAt(0)}
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-slate-900">{candidate?.name}</h4>
+                        <p className="text-xs text-slate-500">{candidate?.industry} · {candidate?.totalWorkYears}年</p>
+                      </div>
+                    </div>
+                    <ScoreRing score={report.overallScore} size={64} strokeWidth={6} showLabel={false} />
+                  </div>
+                  
+                  <div className="mb-3 space-y-1.5">
+                    {report.dimensions.map((dim, dIdx) => (
+                      <div key={dIdx}>
+                        <div className="flex justify-between text-xs mb-0.5">
+                          <span className="text-slate-600">{dim.name}</span>
+                          <span className={`font-medium ${getScoreColor(dim.score)}`}>{dim.score}分</span>
+                        </div>
+                        <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                          <div 
+                            className={`h-full rounded-full ${getScoreBg(dim.score)}`}
+                            style={{ width: `${dim.score}%` }}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+                    <StatusBadge status={candidate?.status || 'pending'} size="sm" />
+                    <div className="text-right">
+                      <p className={`text-lg font-bold ${getScoreColor(report.overallScore)}`}>
+                        {report.overallScore}分
+                      </p>
+                      <p className="text-xs text-slate-500">综合匹配度</p>
                     </div>
                   </div>
-                  <ScoreRing score={report.overallScore} size={60} strokeWidth={6} showLabel={false} />
+                  
+                  {report.missingItems.filter(m => m.impact === 'high').length > 0 && (
+                    <div className="mt-3 p-2 bg-red-50 rounded-lg">
+                      <p className="text-xs text-red-600 font-medium">
+                        ⚠️ {report.missingItems.filter(m => m.impact === 'high').length} 项高影响缺失
+                      </p>
+                    </div>
+                  )}
                 </div>
-                <div className="flex items-center justify-between">
-                  <StatusBadge status={candidate?.status || 'pending'} size="sm" />
-                  <span className={`text-sm font-semibold ${getScoreColor(report.overallScore)}`}>
-                    {report.overallScore} 分
-                  </span>
-                </div>
-              </div>
-            )}
+              );
+            })}
           </div>
         </div>
       ) : !isBatchMode && selectedMatchReport ? (

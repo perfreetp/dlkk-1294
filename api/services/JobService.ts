@@ -23,11 +23,27 @@ export function getJobs(filters?: {
   
   const rows = db.prepare(sql).all(...params) as any[];
   
-  return rows.map(row => ({
-    ...row,
+  return rows.map(row => mapJobRow(row));
+}
+
+function mapJobRow(row: any): Job & { requirements: JobRequirement[] } {
+  const requirements = db.prepare('SELECT skill, required, weight, min_years as minYears FROM job_requirements WHERE job_id = ?').all(row.id) as JobRequirement[];
+  
+  return {
+    id: row.id,
+    title: row.title,
+    department: row.department,
+    industry: row.industry,
+    salaryRange: row.salary_range,
+    location: row.location,
+    minWorkYears: row.min_work_years || 0,
+    educationRequirement: row.education_requirement,
+    description: row.description,
+    requirements,
     responsibilities: JSON.parse(row.responsibilities_json || '[]'),
-    requirements: db.prepare('SELECT skill, required, weight, min_years as minYears FROM job_requirements WHERE job_id = ?').all(row.id) as JobRequirement[]
-  }));
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
 }
 
 export function getJobById(id: string): (Job & { requirements: JobRequirement[] }) | null {
@@ -35,13 +51,7 @@ export function getJobById(id: string): (Job & { requirements: JobRequirement[] 
   
   if (!row) return null;
   
-  const requirements = db.prepare('SELECT skill, required, weight, min_years as minYears FROM job_requirements WHERE job_id = ?').all(id) as JobRequirement[];
-  
-  return {
-    ...row,
-    responsibilities: JSON.parse(row.responsibilities_json || '[]'),
-    requirements
-  };
+  return mapJobRow(row);
 }
 
 export function createJob(data: Omit<Job, 'id' | 'createdAt' | 'updatedAt'>): Job {

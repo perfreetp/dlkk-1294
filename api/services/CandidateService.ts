@@ -42,11 +42,31 @@ export function getCandidates(filters?: {
   
   const rows = db.prepare(sql).all(...params) as any[];
   
-  return rows.map(row => ({
-    ...row,
+  return rows.map(row => mapCandidateRow(row));
+}
+
+function mapCandidateRow(row: any): Candidate {
+  return {
+    id: row.id,
+    name: row.name,
+    phone: row.phone,
+    email: row.email,
+    education: row.education,
+    major: row.major,
+    graduationYear: row.graduation_year,
+    totalWorkYears: row.total_work_years || 0,
+    industry: row.industry,
     skills: JSON.parse(row.skills_json || '[]'),
-    experiences: JSON.parse(row.experiences_json || '[]')
-  }));
+    experiences: JSON.parse(row.experiences_json || '[]'),
+    currentSalary: row.current_salary,
+    expectedSalary: row.expected_salary,
+    status: row.status,
+    consultantNotes: row.consultant_notes,
+    recommendationReason: row.recommendation_reason,
+    resumeUrl: row.resume_url,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
 }
 
 export function getCandidateById(id: string): Candidate | null {
@@ -54,11 +74,7 @@ export function getCandidateById(id: string): Candidate | null {
   
   if (!row) return null;
   
-  return {
-    ...row,
-    skills: JSON.parse(row.skills_json || '[]'),
-    experiences: JSON.parse(row.experiences_json || '[]')
-  };
+  return mapCandidateRow(row);
 }
 
 export function createCandidate(data: Partial<Candidate>): Candidate {
