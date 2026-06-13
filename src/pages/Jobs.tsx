@@ -689,13 +689,126 @@ export function Jobs() {
               />
             </div>
             <div className="col-span-2">
+              <label className="label">学历要求</label>
+              <select
+                value={formData.educationRequirement || ''}
+                onChange={(e) => setFormData({ ...formData, educationRequirement: e.target.value })}
+                className="input"
+              >
+                {EDUCATION_LEVELS.map((edu) => (
+                  <option key={edu} value={edu}>{edu}</option>
+                ))}
+              </select>
+            </div>
+            <div className="col-span-2">
               <label className="label">岗位描述</label>
               <textarea
                 value={formData.description || ''}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 rows={3}
                 className="input"
+                placeholder="描述岗位的整体定位和核心价值..."
               />
+            </div>
+          </div>
+
+          <div>
+            <label className="label">技能要求</label>
+            <div className="flex gap-2 mb-3">
+              <input
+                type="text"
+                value={newRequirement.skill}
+                onChange={(e) => setNewRequirement({ ...newRequirement, skill: e.target.value })}
+                className="input flex-1"
+                placeholder="技能名称，如 React"
+                onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addRequirement())}
+              />
+              <input
+                type="number"
+                value={newRequirement.minYears}
+                onChange={(e) => setNewRequirement({ ...newRequirement, minYears: parseInt(e.target.value) })}
+                className="input w-24"
+                placeholder="年限"
+              />
+              <input
+                type="number"
+                value={newRequirement.weight}
+                onChange={(e) => setNewRequirement({ ...newRequirement, weight: parseInt(e.target.value) })}
+                className="input w-24"
+                placeholder="权重"
+                min={1}
+                max={10}
+              />
+              <label className="flex items-center gap-2 px-3">
+                <input
+                  type="checkbox"
+                  checked={newRequirement.required}
+                  onChange={(e) => setNewRequirement({ ...newRequirement, required: e.target.checked })}
+                  className="w-4 h-4"
+                />
+                <span className="text-sm text-slate-700">必填</span>
+              </label>
+              <button onClick={addRequirement} className="btn-primary">
+                添加
+              </button>
+            </div>
+            <div className="space-y-2 max-h-40 overflow-y-auto scrollbar-thin">
+              {formData.requirements?.map((req, idx) => (
+                <div
+                  key={idx}
+                  className="flex items-center justify-between p-3 bg-slate-50 rounded-lg"
+                >
+                  <div className="flex items-center gap-3">
+                    <span className={`px-2 py-0.5 text-xs rounded-full ${
+                      req.required ? 'bg-primary-100 text-primary-700' : 'bg-slate-200 text-slate-600'
+                    }`}>
+                      {req.required ? '必填' : '加分'}
+                    </span>
+                    <span className="font-medium text-slate-700">{req.skill}</span>
+                    <span className="text-sm text-slate-500">{req.minYears} 年以上</span>
+                    <span className="text-xs text-slate-400">权重: {req.weight}</span>
+                  </div>
+                  <button
+                    onClick={() => removeRequirement(idx)}
+                    className="p-1 text-slate-400 hover:text-red-500"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className="label">岗位职责</label>
+            <div className="flex gap-2 mb-3">
+              <input
+                type="text"
+                value={newResponsibility}
+                onChange={(e) => setNewResponsibility(e.target.value)}
+                className="input flex-1"
+                placeholder="描述一项岗位职责..."
+                onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addResponsibility())}
+              />
+              <button onClick={addResponsibility} className="btn-primary">
+                添加
+              </button>
+            </div>
+            <div className="space-y-2 max-h-40 overflow-y-auto scrollbar-thin">
+              {formData.responsibilities?.map((resp, idx) => (
+                <div
+                  key={idx}
+                  className="flex items-center justify-between p-3 bg-slate-50 rounded-lg"
+                >
+                  <span className="text-slate-700">{idx + 1}. {resp}</span>
+                  <button
+                    onClick={() => removeResponsibility(idx)}
+                    className="p-1 text-slate-400 hover:text-red-500"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              ))}
             </div>
           </div>
         </div>

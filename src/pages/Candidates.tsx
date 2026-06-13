@@ -105,15 +105,19 @@ export function Candidates() {
     setIsDetailModalOpen(true);
   };
 
+  const [editingCandidateId, setEditingCandidateId] = useState('');
+
   const openEditModal = (candidate: Candidate) => {
     setEditForm(candidate);
+    setEditingCandidateId(candidate.id);
     setIsEditModalOpen(true);
   };
 
   const handleEditSubmit = async () => {
-    if (selectedCandidate) {
-      await updateCandidate(selectedCandidate.id, editForm);
+    if (editingCandidateId) {
+      await updateCandidate(editingCandidateId, editForm);
       setIsEditModalOpen(false);
+      setEditingCandidateId('');
     }
   };
 
@@ -573,12 +577,15 @@ export function Candidates() {
 
       <Modal
         isOpen={isEditModalOpen}
-        onClose={() => setIsEditModalOpen(false)}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setEditingCandidateId('');
+        }}
         title="编辑候选人信息"
         size="lg"
         footer={
           <div className="flex justify-end gap-3">
-            <button onClick={() => setIsEditModalOpen(false)} className="btn-secondary">
+            <button onClick={() => { setIsEditModalOpen(false); setEditingCandidateId(''); }} className="btn-secondary">
               取消
             </button>
             <button onClick={handleEditSubmit} className="btn-primary">

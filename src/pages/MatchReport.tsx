@@ -7,7 +7,7 @@ import { ScoreRing } from '../components/ScoreRing';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 import { EmptyState } from '../components/EmptyState';
 import { StatusBadge } from '../components/StatusBadge';
-import type { Candidate, Job } from '../../shared/types';
+import type { Candidate, Job, MatchReport as MatchReportType } from '../../shared/types';
 
 export function MatchReport() {
   const { 
@@ -91,7 +91,9 @@ export function MatchReport() {
     fullMark: 100,
   })) || [];
 
-  const barData = matchReports.map(r => {
+  const sortedMatchReports = [...matchReports].sort((a, b) => b.overallScore - a.overallScore);
+
+  const barData = sortedMatchReports.map(r => {
     const candidate = candidates.find(c => c.id === r.candidateId);
     return {
       name: candidate?.name || '未知',
@@ -111,6 +113,7 @@ export function MatchReport() {
             onClick={() => {
               setIsBatchMode(false);
               setSelectedCandidateIds([]);
+              useStore.getState().setSelectedMatchReport(null);
             }}
             className={`btn ${!isBatchMode ? 'btn-primary' : 'btn-secondary'}`}
           >
@@ -120,6 +123,7 @@ export function MatchReport() {
             onClick={() => {
               setIsBatchMode(true);
               setSelectedCandidateId('');
+              useStore.getState().setMatchReports([]);
             }}
             className={`btn ${isBatchMode ? 'btn-primary' : 'btn-secondary'}`}
           >
@@ -202,7 +206,7 @@ export function MatchReport() {
                   分析中...
                 </>
               ) : (
-                  <>开始{isBatchMode ? '批量匹配' : '开始匹配'}</>
+                  <>{isBatchMode ? '批量匹配' : '开始匹配'}</>
                 )}
             </button>
         </div>
@@ -233,7 +237,7 @@ export function MatchReport() {
           </div>
 
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-            {matchReports.map((report, idx) => {
+            {sortedMatchReports.map((report, idx) => {
               const candidate = candidates.find(c => c.id === report.candidateId);
               return (
                 <div key={idx} className="card p-5">
@@ -278,7 +282,7 @@ export function MatchReport() {
                 <ResponsiveContainer width="100%" height="100%">
                   <RadarChart data={radarData}>
                     <PolarGrid stroke="#e2e8f0" />
-                    <PolarAngleAxis dataKey="dimension" tick={{ fontSize={12} />
+                    <PolarAngleAxis dataKey="dimension" tick={{ fontSize: 12 }} />
                     <PolarRadiusAxis angle={30} domain={[0, 100]} />
                     <Radar
                       name="得分"

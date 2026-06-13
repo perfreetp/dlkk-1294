@@ -82,6 +82,7 @@ interface AppState {
   setSelectedCandidate: (candidate: Candidate | null) => void;
   setSelectedJob: (job: Job | null) => void;
   setSelectedMatchReport: (report: MatchReport | null) => void;
+  setMatchReports: (reports: MatchReport[]) => void;
 
   addToast: (type: Toast['type'], message: string) => void;
   removeToast: (id: string) => void;
@@ -129,6 +130,8 @@ export const useStore = create<AppState>((set, get) => ({
   setSelectedJob: (job) => set({ selectedJob: job }),
 
   setSelectedMatchReport: (report) => set({ selectedMatchReport: report }),
+
+  setMatchReports: (reports) => set({ matchReports: reports }),
 
   fetchCandidates: async (filters) => {
     get().setLoading('candidates', true);
